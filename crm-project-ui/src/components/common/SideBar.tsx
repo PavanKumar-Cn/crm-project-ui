@@ -98,12 +98,12 @@ const Sidebar = ({
       </Toolbar>
       <Divider />
       <List component="nav">
-        <ListItemButton component={Link} to="/admin">
+        {/* <ListItemButton component={Link} to="/admin">
           <ListItemIcon>
             <ManageAccountsIcon />
           </ListItemIcon>
           <ListItemText primary="Admin" />
-        </ListItemButton>
+        </ListItemButton> */}
         {/* <ListItemButton component={Link} to="/supervisor">
           <ListItemIcon>
             <SupervisorAccountIcon />
@@ -120,19 +120,19 @@ const Sidebar = ({
         </ListItemButton>
         <Collapse in={listOpen} timeout="auto" unmountOnExit>
           <List component="div" disablePadding>
-            <ListItemButton component={Link} to="/supervisor/issue-assignment">
+            <ListItemButton component={Link} to="/supervisor/dashboard">
               <ListItemIcon></ListItemIcon>
               <ListItemText primary="Issues" />
             </ListItemButton>
           </List>
         </Collapse>
 
-        <ListItemButton>
+        {/* <ListItemButton>
           <ListItemIcon>
             <ManageHistoryIcon />
           </ListItemIcon>
           <ListItemText primary="Transaction Manager" />
-        </ListItemButton>
+        </ListItemButton> */}
       </List>
     </Drawer>
   );

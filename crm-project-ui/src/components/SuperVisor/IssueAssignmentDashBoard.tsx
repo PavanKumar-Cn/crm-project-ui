@@ -1,6 +1,9 @@
 import {
   Box,
   Button,
+  Dialog,
+  DialogContent,
+  DialogTitle,
   Grid,
   IconButton,
   Modal,
@@ -23,6 +26,10 @@ import {
 import { useEffect, useState } from "react";
 import IssueAssignment from "../../interfaces/Supervisor";
 import useErrorHandler from "../../hooks/useErrorHandler";
+import styled from "@emotion/styled";
+import IssueAssignmentEdit from "./IssueAssignmentEditModal";
+import { Link, useNavigate } from "react-router-dom";
+import { WidthFull } from "@mui/icons-material";
 
 const style = {
   position: "absolute" as "absolute",
@@ -37,9 +44,10 @@ const style = {
 };
 
 const IssueAssignmentDashBoard = () => {
+  let navigate = useNavigate();
   const [open, setOpen] = useState(false);
-  const handleOpen = () => setOpen(true);
-  const handleClose = () => setOpen(false);
+  const handleOpenDialog = () => setOpen(true);
+  const handleCloseDialog = () => setOpen(false);
 
   const errorHandler = useErrorHandler();
 
@@ -62,17 +70,24 @@ const IssueAssignmentDashBoard = () => {
       });
   }
 
+  const navigateToEdit = (data: IssueAssignment) => {
+    console.log(data);
+    console.log(typeof data);
+    alert(data.buildingName + "1234");
+    navigate("/supervisor/edit", { state: data });
+  };
+
   return (
     <>
-      <TableContainer component={Paper}>
+      <TableContainer component={Paper} sx={{ width: "100%" }}>
         <Table aria-label="simple table">
           <TableHead>
             <TableRow sx={{ backgroundColor: "#BFD8AF" }}>
               <TableCell>Resident Contact</TableCell>
-              <TableCell>Description</TableCell>
+              <TableCell>Issue Description</TableCell>
               <TableCell>Worker Name</TableCell>
-              <TableCell>Status</TableCell>
-              <TableCell>Issue Create Date</TableCell>
+              <TableCell>Issue Status</TableCell>
+              <TableCell>Issue Created Date</TableCell>
               <TableCell>Issue End Date</TableCell>
               <TableCell>Edit</TableCell>
             </TableRow>
@@ -96,38 +111,29 @@ const IssueAssignmentDashBoard = () => {
                     : ""}
                 </TableCell>
                 <TableCell>
-                  <IconButton aria-label="edit" onClick={handleOpen}>
+                  <IconButton
+                    aria-label="edit"
+                    // LinkComponent={Link}
+                    // to="/edit"
+                    // state={{}}
+                    // onClick={handleOpenDialog}
+                    onClick={() => navigateToEdit(row)}
+                  >
                     <EditIcon />
-                    <Modal
+                    {/* <Dialog
                       open={open}
-                      onClose={handleClose}
-                      aria-labelledby="modal-modal-title"
-                      aria-describedby="modal-modal-description"
+                      onClose={handleCloseDialog}
+                      maxWidth="md"
+                      fullWidth={true}
                     >
-                      <Box sx={style}>
-                        <Typography
-                          id="modal-modal-title"
-                          variant="h6"
-                          component="h2"
-                        >
-                          Text in a modal
-                        </Typography>
-                        <Typography id="modal-modal-description" sx={{ mt: 2 }}>
-                          Duis mollis, est non commodo luctus, nisi erat
-                          porttitor ligula.
-                        </Typography>
-                        <Box>
-                          <Grid container spacing={2}>
-                            <Grid item xs={6} md={6}>
-                              {/* <Item>xs=6 md=8</Item> */}
-                            </Grid>
-                            <Grid item xs={6} md={6}>
-                              {/* <Item>xs=6 md=4</Item> */}
-                            </Grid>
-                          </Grid>
-                        </Box>
-                      </Box>
-                    </Modal>
+                      <DialogTitle>Issue Details</DialogTitle>
+                      <DialogContent>
+                        <IssueAssignmentEdit
+                          issueAssignment={row}
+                          handleCloseDialog={handleCloseDialog}
+                        />
+                      </DialogContent> 
+                    </Dialog>*/}
                   </IconButton>
                 </TableCell>
               </TableRow>
