@@ -4,23 +4,78 @@ import {
   Divider,
   FormControl,
   Grid,
-  List,
-  ListItem,
   Paper,
   Stack,
   TextField,
   Typography,
 } from "@mui/material";
-import { useLocation, useNavigate, useParams } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import IssueAssignment from "../../interfaces/Supervisor";
+import { useState } from "react";
 
 const IssueAssignmentEditPage = () => {
-  let params = useParams();
   const navigate = useNavigate();
-  console.log("Pavan rout is working...");
   let locaction = useLocation();
   let ass = locaction.state as IssueAssignment;
-  console.log("location : --------" + ass);
+
+  const [issueAssignment, setIssueAssignment] = useState(ass);
+  const [formErrors, setFormErrors] = useState({
+    workerName: {
+      error: false,
+      msg: "",
+    },
+    remarks: {
+      error: false,
+      msg: "",
+    },
+  });
+  function alertSupervisor() {
+    switch (true) {
+      case formErrors.remarks.msg !== "" && formErrors.workerName.msg !== "": {
+        alert(formErrors.remarks.msg + "\n" + formErrors.workerName.msg);
+        break;
+      }
+      case formErrors.remarks.msg !== "": {
+        alert(formErrors.remarks.msg);
+        break;
+      }
+      case formErrors.workerName.msg !== "": {
+        alert(formErrors.workerName.msg);
+        break;
+      }
+    }
+  }
+  const handleUpdateIssueAssignmen = () => {
+    let validationFlag = false;
+    if (
+      issueAssignment.workerName === null ||
+      issueAssignment.workerName === undefined ||
+      issueAssignment.workerName === ""
+    ) {
+      formErrors["workerName"].error = true;
+      formErrors["workerName"].msg = "Provide Worker Name";
+      validationFlag = true;
+    }
+    if (
+      issueAssignment.remarks === null ||
+      issueAssignment.remarks === undefined
+    ) {
+      formErrors["remarks"].error = true;
+      formErrors["remarks"].msg = "Add Remarks";
+      validationFlag = true;
+    }
+
+    if (validationFlag) {
+      setFormErrors(() => {
+        return { ...formErrors };
+      });
+      alertSupervisor();
+      return;
+    } else {
+      alert(JSON.stringify(issueAssignment));
+      console.error(" issue alert : " + JSON.stringify(issueAssignment));
+    }
+  };
 
   const showData = (data: IssueAssignment) => {
     console.log(
@@ -28,15 +83,23 @@ const IssueAssignmentEditPage = () => {
     );
     // console.log("location : --------" + locaction.state);
   };
+
+  const inputChangeHandle = (name: string, value: any) => {
+    setIssueAssignment((preValues) => {
+      // console.log("preValues......" + JSON.stringify(preValues));
+      return { ...preValues, [name]: value };
+    });
+  };
   return (
     <>
       <Box
         sx={{
-          width: "60%",
+          width: "80%",
           display: "flex",
           flexDirection: "column",
           justifyContent: "center",
-          paddingLeft: "20%",
+          // padding: "auto",
+          paddingLeft: "10%",
         }}
       >
         <FormControl
@@ -61,9 +124,12 @@ const IssueAssignmentEditPage = () => {
               sx={{
                 display: "flex",
                 // justifyContent: "center",
-                flexDirection: "row",
+                flexDirection: "column",
                 p: 0,
                 // paddingRight: 5,
+                overflowY: "auto",
+                flexGrow: 1,
+                maxHeight: "80%",
               }}
             >
               <Box
@@ -96,6 +162,7 @@ const IssueAssignmentEditPage = () => {
                     <TextField
                       id="outlined-read-only-input"
                       label="Contact Number"
+                      name="customerPhNo"
                       value={ass.customerPhNo}
                       InputProps={{
                         readOnly: true,
@@ -106,6 +173,7 @@ const IssueAssignmentEditPage = () => {
                     <TextField
                       id="outlined-read-only-input"
                       label="Tower "
+                      name="tower"
                       value={ass.tower}
                       InputProps={{
                         readOnly: true,
@@ -116,6 +184,7 @@ const IssueAssignmentEditPage = () => {
                     <TextField
                       id="outlined-read-only-input"
                       label="Flat Number "
+                      name="flatNumber"
                       value={ass.flatNumber}
                       InputProps={{
                         readOnly: true,
@@ -124,112 +193,135 @@ const IssueAssignmentEditPage = () => {
                   </Grid>
                 </Grid>
               </Box>
-            </Box>
-            <Divider />
-            <Box
-              sx={{
-                width: "100%",
-                marginY: 2,
-              }}
-            >
-              <Typography
-                variant="h5"
-                gutterBottom
-                paddingLeft={5}
-                sx={{ textAlign: "start" }}
-              >
-                Issue Details
-              </Typography>
               <Divider />
-              <Grid
-                container
-                rowSpacing={1}
-                columnSpacing={{ md: 3 }}
-                rowGap={2}
-                textAlign={"left"}
-                paddingY={2}
-                paddingLeft={8}
-                // paddingLeft={5}
-                // padding={"20px"}
+              <Box
+                sx={{
+                  width: "100%",
+                  marginY: 2,
+                }}
               >
-                <Grid item xs={6}>
-                  <TextField
-                    id="outlined-read-only-input"
-                    label="Issue Related To"
-                    value={ass.issueTypeName?.toLocaleLowerCase()}
-                    InputProps={{
-                      readOnly: true,
-                    }}
-                  />
-                </Grid>
-                <Grid item xs={6}>
-                  {" "}
-                </Grid>
+                <Typography
+                  variant="h5"
+                  gutterBottom
+                  paddingLeft={5}
+                  sx={{ textAlign: "start" }}
+                >
+                  Issue Details
+                </Typography>
+                <Divider />
+                <Grid
+                  container
+                  rowSpacing={1}
+                  columnSpacing={{ md: 3 }}
+                  rowGap={2}
+                  textAlign={"left"}
+                  paddingY={2}
+                  paddingLeft={8}
+                  // paddingLeft={5}
+                  // padding={"20px"}
+                >
+                  <Grid item xs={6}>
+                    <TextField
+                      id="outlined-read-only-input"
+                      label="Issue Related To"
+                      name="issueTypeName"
+                      value={ass.issueTypeName}
+                      InputProps={{
+                        readOnly: true,
+                      }}
+                    />
+                  </Grid>
+                  <Grid item xs={6}>
+                    {" "}
+                  </Grid>
 
-                <Grid item xs={8}>
-                  <TextField
-                    id="outlined-read-only-input"
-                    label="Issue Description "
-                    value={ass.issueDescription}
-                    InputProps={{
-                      readOnly: true,
-                    }}
-                    sx={{
-                      width: "80%",
-                    }}
-                  />
+                  <Grid item xs={8}>
+                    <TextField
+                      id="outlined-read-only-input"
+                      label="Issue Description "
+                      name="issueDescription"
+                      value={ass.issueDescription}
+                      fullWidth
+                      multiline
+                      rows={2}
+                      InputProps={{
+                        readOnly: true,
+                      }}
+                      // sx={{
+                      //   width: "80%",
+                      // }}
+                    />
+                  </Grid>
+                  <Grid item xs={4}>
+                    <TextField
+                      id="outlined-read-only-input"
+                      label="Issue Status"
+                      value={ass.issueStatusRefCode}
+                    />
+                  </Grid>
                 </Grid>
-                <Grid item xs={4}>
-                  <TextField
-                    id="outlined-read-only-input"
-                    label="Issue Status"
-                    value={ass.issueStatusRefCode}
-                    // InputProps={{
-                    //   readOnly: true,
-                    // }}
-                  />
-                </Grid>
-              </Grid>
-            </Box>
-            <Divider />
-            <Box
-              sx={{
-                width: "100%",
-                marginY: 2,
-              }}
-            >
-              <Typography
-                variant="h5"
-                gutterBottom
-                paddingLeft={5}
-                sx={{ textAlign: "start" }}
-              >
-                Fill Details
-              </Typography>
+              </Box>
               <Divider />
-              <Grid
-                container
-                rowSpacing={1}
-                columnSpacing={{ md: 3 }}
-                rowGap={2}
-                textAlign={"left"}
-                paddingY={2}
-                paddingLeft={8}
+              <Box
+                sx={{
+                  width: "100%",
+                  marginY: 2,
+                }}
               >
-                <Grid item xs={6}>
-                  <TextField label="Worker Name" />
-                </Grid>
+                <Typography
+                  variant="h5"
+                  gutterBottom
+                  paddingLeft={5}
+                  sx={{ textAlign: "start" }}
+                >
+                  Fill Details
+                </Typography>
+                <Divider />
+                <Grid
+                  container
+                  rowSpacing={1}
+                  columnSpacing={{ md: 3 }}
+                  rowGap={2}
+                  textAlign={"left"}
+                  paddingY={2}
+                  paddingLeft={8}
+                >
+                  <Grid item xs={6}>
+                    <TextField
+                      fullWidth
+                      required
+                      name="workerName"
+                      label="Worker Name"
+                      onChange={(event) =>
+                        inputChangeHandle(
+                          event.currentTarget.name,
+                          event.currentTarget.value
+                        )
+                      }
+                      error={formErrors.workerName.error}
+                    />
+                  </Grid>
 
-                <Grid item xs={8}>
-                  <TextField
-                    type="string"
-                    label="Remarks"
-                    sx={{
-                      width: "80%",
-                    }}
-                  />
+                  <Grid item xs={8}>
+                    <TextField
+                      required
+                      type="string"
+                      name="remarks"
+                      label="Remarks"
+                      multiline
+                      rows={3}
+                      fullWidth
+                      onChange={(event) =>
+                        inputChangeHandle(
+                          event.currentTarget.name,
+                          event.currentTarget.value
+                        )
+                      }
+                      error={formErrors.remarks.error}
+                    />
+                  </Grid>
                 </Grid>
-              </Grid>
+              </Box>
             </Box>
           </Paper>
         </FormControl>
@@ -263,7 +355,10 @@ const IssueAssignmentEditPage = () => {
               variant="contained"
               // isProcessing={isProcessing}
               // processText={isAdding ? "Adding" : "Updateing"}
-              onClick={() => console.log(ass)}
+              onClick={() => {
+                handleUpdateIssueAssignmen();
+                console.log(issueAssignment);
+              }}
               //   text={isAdding ? "Add" : "Update"}
               //   //circularStyle={{ color: "secondary" }}
               //   sx={{ float: "right" }}
