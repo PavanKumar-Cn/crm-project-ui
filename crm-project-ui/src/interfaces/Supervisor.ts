@@ -22,3 +22,8 @@ export default interface IssueAssignment {
   buildingName: string | null;
   issueTypeName: string | null;
 }
+
+export interface IssueStatusReference {
+  issueStatusRefCode: string | null;
+  issueStatusRefName: string | null;
+}
