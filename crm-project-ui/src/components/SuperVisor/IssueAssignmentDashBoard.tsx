@@ -19,29 +19,11 @@ import Typography from "@mui/material/Typography";
 import EditIcon from "@mui/icons-material/Edit";
 
 import { openaxios } from "../../api/axios-usage";
-import {
-  I_ASSIGNMENT_BYID,
-  I_ASSIGNMENT_BYSUPERVISORID,
-} from "../../api/supervisor-urls";
+import { I_ASSIGNMENT_BYSUPERVISORID } from "../../api/supervisor-urls";
 import { useEffect, useState } from "react";
 import IssueAssignment from "../../interfaces/Supervisor";
 import useErrorHandler from "../../hooks/useErrorHandler";
-import styled from "@emotion/styled";
-import IssueAssignmentEdit from "./IssueAssignmentEditModal";
-import { Link, useNavigate } from "react-router-dom";
-import { WidthFull } from "@mui/icons-material";
-
-const style = {
-  position: "absolute" as "absolute",
-  top: "50%",
-  left: "50%",
-  transform: "translate(-50%, -50%)",
-  width: 400,
-  bgcolor: "background.paper",
-  border: "2px solid #000",
-  boxShadow: 24,
-  p: 4,
-};
+import { useNavigate } from "react-router-dom";
 
 const IssueAssignmentDashBoard = () => {
   let navigate = useNavigate();
@@ -103,7 +85,9 @@ const IssueAssignmentDashBoard = () => {
                 <TableCell>{row.workerName}</TableCell>
                 <TableCell>{row.issueStatusRefCode}</TableCell>
                 <TableCell>
-                  {new Date(row.issueAssignmentStartDate).toLocaleString()}
+                  {row.issueAssignmentStartDate
+                    ? new Date(row.issueAssignmentStartDate).toLocaleString()
+                    : ""}
                 </TableCell>
                 <TableCell>
                   {row.issueAssignmentEndDate

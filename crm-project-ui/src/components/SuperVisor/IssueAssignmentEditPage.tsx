@@ -4,14 +4,21 @@ import {
   Divider,
   FormControl,
   Grid,
+  InputLabel,
+  MenuItem,
   Paper,
+  Select,
   Stack,
   TextField,
   Typography,
 } from "@mui/material";
 import { useLocation, useNavigate } from "react-router-dom";
-import IssueAssignment from "../../interfaces/Supervisor";
-import { useState } from "react";
+import IssueAssignment, {
+  IssueStatusReference,
+} from "../../interfaces/Supervisor";
+import { useEffect, useState } from "react";
+import { openaxios } from "../../api/axios-usage";
+import { ISSUE_STATUS_REFS, I_ASS_UPDATE } from "../../api/supervisor-urls";
 
 const IssueAssignmentEditPage = () => {
   const navigate = useNavigate();
@@ -19,12 +26,31 @@ const IssueAssignmentEditPage = () => {
   let ass = locaction.state as IssueAssignment;
 
   const [issueAssignment, setIssueAssignment] = useState(ass);
+
+  const [issueStatusReferences, setIssueStatusReferences] = useState<
+    IssueStatusReference[]
+  >([]);
+
+  useEffect(() => {
+    getIssueStatusReferences();
+  }, []);
+
+  const getIssueStatusReferences = () => {
+    openaxios.get(ISSUE_STATUS_REFS).then((issueStatusRefs) => {
+      console.log(" issueStatusRefs " + JSON.stringify(issueStatusRefs.data));
+      setIssueStatusReferences(issueStatusRefs.data);
+    });
+  };
   const [formErrors, setFormErrors] = useState({
     workerName: {
       error: false,
       msg: "",
     },
     remarks: {
+      error: false,
+      msg: "",
+    },
+    issueStatusRefCode: {
       error: false,
       msg: "",
     },
@@ -58,10 +84,23 @@ const IssueAssignmentEditPage = () => {
     }
     if (
       issueAssignment.remarks === null ||
-      issueAssignment.remarks === undefined
+      issueAssignment.remarks === undefined ||
+      issueAssignment.remarks === " "
     ) {
       formErrors["remarks"].error = true;
       formErrors["remarks"].msg = "Add Remarks";
+      validationFlag = true;
+    }
+    if (
+      (issueAssignment.remarks !== null ||
+        issueAssignment.remarks !== undefined) &&
+      (issueAssignment.workerName !== null ||
+        issueAssignment.workerName !== undefined) &&
+      issueAssignment.issueStatusRefCode === "O"
+    ) {
+      formErrors["issueStatusRefCode"].error = true;
+      formErrors["issueStatusRefCode"].msg =
+        "Please Change the Status of The Issue";
       validationFlag = true;
     }
 
@@ -69,19 +108,21 @@ const IssueAssignmentEditPage = () => {
       setFormErrors(() => {
         return { ...formErrors };
       });
-      alertSupervisor();
+      // alertSupervisor();
       return;
     } else {
-      alert(JSON.stringify(issueAssignment));
+      openaxios
+        .put(I_ASS_UPDATE, { ...issueAssignment })
+        .then(() => {
+          console.log("while updateing " + issueAssignment);
+          navigate("/supervisor/dashboard");
+        })
+        .catch((err) => {
+          alert("Update UnSuccessful......");
+          console.log(err);
+        });
       console.error(" issue alert : " + JSON.stringify(issueAssignment));
     }
-  };
-
-  const showData = (data: IssueAssignment) => {
-    console.log(
-      "Issue Assignment data  " + data.issueAssignmentStartDate.toLocaleString()
-    );
-    // console.log("location : --------" + locaction.state);
   };
 
   const inputChangeHandle = (name: string, value: any) => {
@@ -163,7 +204,7 @@ const IssueAssignmentEditPage = () => {
                       id="outlined-read-only-input"
                       label="Contact Number"
                       name="customerPhNo"
-                      value={ass.customerPhNo}
+                      value={issueAssignment.customerPhNo}
                       InputProps={{
                         readOnly: true,
                       }}
@@ -185,7 +226,7 @@ const IssueAssignmentEditPage = () => {
                       id="outlined-read-only-input"
                       label="Flat Number "
                       name="flatNumber"
-                      value={ass.flatNumber}
+                      value={issueAssignment.flatNumber}
                       InputProps={{
                         readOnly: true,
                       }}
@@ -225,39 +266,57 @@ const IssueAssignmentEditPage = () => {
                       id="outlined-read-only-input"
                       label="Issue Related To"
                       name="issueTypeName"
-                      value={ass.issueTypeName}
+                      value={issueAssignment.issueTypeName}
                       InputProps={{
                         readOnly: true,
                       }}
                     />
                   </Grid>
-                  <Grid item xs={6}>
-                    {" "}
-                  </Grid>
 
-                  <Grid item xs={8}>
+                  <Grid item xs={7}>
                     <TextField
                       id="outlined-read-only-input"
                       label="Issue Description "
                       name="issueDescription"
-                      value={ass.issueDescription}
-                      fullWidth
+                      value={issueAssignment.issueDescription}
                       multiline
                       rows={2}
                       InputProps={{
                         readOnly: true,
                       }}
-                      // sx={{
-                      //   width: "80%",
-                      // }}
+                      sx={{
+                        width: "80%",
+                      }}
                     />
                   </Grid>
-                  <Grid item xs={4}>
-                    <TextField
-                      id="outlined-read-only-input"
-                      label="Issue Status"
-                      value={ass.issueStatusRefCode}
-                    />
+                  <Grid item xs={5}>
+                    <FormControl sx={{ width: "80%" }}>
+                      <InputLabel id="select-label">Issue Status</InputLabel>
+                      <Select
+                        labelId="select-label"
+                        label={"Issue Status"}
+                        value={issueAssignment.issueStatusRefCode}
+                        name="issueStatusRefCode"
+                        fullWidth
+                        onChange={(e) =>
+                          inputChangeHandle(e.target.name, e.target.value)
+                        }
+                        error={formErrors.issueStatusRefCode.error}
+                      >
+                        {issueStatusReferences.map((issueStaRef) => (
+                          <MenuItem
+                            key={issueStaRef.issueStatusRefCode}
+                            value={issueStaRef.issueStatusRefCode || ""}
+                            defaultChecked={
+                              issueAssignment.issueStatusRefCode ===
+                              issueStaRef.issueStatusRefCode
+                            }
+                          >
+                            {issueStaRef.issueStatusRefName}
+                          </MenuItem>
+                        ))}
+                      </Select>
+                    </FormControl>
                   </Grid>
                 </Grid>
               </Box>
@@ -292,6 +351,11 @@ const IssueAssignmentEditPage = () => {
                       required
                       name="workerName"
                       label="Worker Name"
+                      value={
+                        issueAssignment.workerName
+                          ? issueAssignment.workerName
+                          : ""
+                      }
                       onChange={(event) =>
                         inputChangeHandle(
                           event.currentTarget.name,
